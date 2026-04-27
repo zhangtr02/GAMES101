@@ -42,6 +42,12 @@ namespace CGL {
             {
                 m->forces += gravity * m->mass;
                 Vector2D acceleration = m->forces / m->mass;
+
+                // Explicit Euler uses the old velocity to update position:
+                // m->position += m->velocity * delta_t;
+                // m->velocity += acceleration * delta_t;
+                //
+                // The code below is semi-implicit Euler, which updates velocity first.
                 m->velocity += acceleration * delta_t;
                 m->position += m->velocity * delta_t;
 
