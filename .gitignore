@@ -1,0 +1,33 @@
+﻿# CLion project-specific files
+.idea/
+*.iml
+
+# CMake related files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+CMakeUserPresets.json
+CMakeLists.txt.user
+
+# Build output directory
+build/
+cmake-build-debug-visual-studio/
+
+# Temporary files
+.DS_Store
+*.swp
+*.sublime-workspace
+*.log
+*.tmp
+*.bak
+
+# Compiler-generated files
+*.o
+*.a
+*.so
+*.d
+
+# Debug configuration files
+.vscode/
+*.launch
