@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 #include <opencv2/opencv.hpp>
 
 #include "global.hpp"
@@ -7,6 +8,30 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "OBJ_Loader.h"
+
+namespace fs = std::filesystem;
+
+fs::path find_project_path(const fs::path& relative_path)
+{
+    auto current = fs::current_path();
+    for (int i = 0; i < 8; ++i)
+    {
+        auto candidate = current / relative_path;
+        if (fs::exists(candidate))
+        {
+            return candidate;
+        }
+
+        auto parent = current.parent_path();
+        if (parent == current)
+        {
+            break;
+        }
+        current = parent;
+    }
+
+    return relative_path;
+}
 
 Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
 {
@@ -333,12 +358,10 @@ int main(int argc, const char** argv)
 
     std::string filename = "displacement.png";
     objl::Loader Loader;
-    // std::string obj_path = "../models/spot/";
-    std::string obj_path = "C:/Users/tianrong/Projects/GAMES101/03/src/models/spot/";
+    auto obj_path = find_project_path("03/src/models/spot");
 
     // Load .obj File
-    // bool loadout = Loader.LoadFile("../models/spot/spot_triangulated_good.obj");
-    bool loadout = Loader.LoadFile(obj_path + "spot_triangulated_good.obj");
+    bool loadout = Loader.LoadFile((obj_path / "spot_triangulated_good.obj").string());
     for(auto mesh:Loader.LoadedMeshes)
     {
         for(int i=0;i<mesh.Vertices.size();i+=3)
@@ -357,7 +380,7 @@ int main(int argc, const char** argv)
     rst::rasterizer r(700, 700);
 
     auto texture_path = "hmap.jpg";
-    r.set_texture(Texture(obj_path + texture_path));
+    r.set_texture(Texture((obj_path / texture_path).string()));
 
     std::function<Eigen::Vector3f(fragment_shader_payload)> active_shader = phong_fragment_shader;
 
@@ -371,7 +394,7 @@ int main(int argc, const char** argv)
             std::cout << "Rasterizing using the texture shader\n";
             active_shader = texture_fragment_shader;
             texture_path = "spot_texture.png";
-            r.set_texture(Texture(obj_path + texture_path));
+            r.set_texture(Texture((obj_path / texture_path).string()));
         }
         else if (argc == 3 && std::string(argv[2]) == "normal")
         {

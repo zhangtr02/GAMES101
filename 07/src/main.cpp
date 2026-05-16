@@ -5,6 +5,31 @@
 #include "Vector.hpp"
 #include "global.hpp"
 #include <chrono>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+fs::path find_project_path(const fs::path& relative_path)
+{
+    auto current = fs::current_path();
+    for (int i = 0; i < 8; ++i)
+    {
+        auto candidate = current / relative_path;
+        if (fs::exists(candidate))
+        {
+            return candidate;
+        }
+
+        auto parent = current.parent_path();
+        if (parent == current)
+        {
+            break;
+        }
+        current = parent;
+    }
+
+    return relative_path;
+}
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -25,19 +50,13 @@ int main(int argc, char** argv)
     Material* light = new Material(DIFFUSE, (8.0f * Vector3f(0.747f+0.058f, 0.747f+0.258f, 0.747f) + 15.6f * Vector3f(0.740f+0.287f,0.740f+0.160f,0.740f) + 18.4f *Vector3f(0.737f+0.642f,0.737f+0.159f,0.737f)));
     light->Kd = Vector3f(0.65f);
 
-    // MeshTriangle floor("../models/cornellbox/floor.obj", white);
-    // MeshTriangle shortbox("../models/cornellbox/shortbox.obj", white);
-    // MeshTriangle tallbox("../models/cornellbox/tallbox.obj", white);
-    // MeshTriangle left("../models/cornellbox/left.obj", red);
-    // MeshTriangle right("../models/cornellbox/right.obj", green);
-    // MeshTriangle light_("../models/cornellbox/light.obj", light);
-
-    MeshTriangle floor("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/floor.obj", white);
-    MeshTriangle shortbox("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/shortbox.obj", white);
-    MeshTriangle tallbox("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/tallbox.obj", white);
-    MeshTriangle left("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/left.obj", red);
-    MeshTriangle right("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/right.obj", green);
-    MeshTriangle light_("C:/Users/tianrong/Projects/GAMES101/07/src/models/cornellbox/light.obj", light);
+    auto model_path = find_project_path("07/src/models/cornellbox");
+    MeshTriangle floor((model_path / "floor.obj").string(), white);
+    MeshTriangle shortbox((model_path / "shortbox.obj").string(), white);
+    MeshTriangle tallbox((model_path / "tallbox.obj").string(), white);
+    MeshTriangle left((model_path / "left.obj").string(), red);
+    MeshTriangle right((model_path / "right.obj").string(), green);
+    MeshTriangle light_((model_path / "light.obj").string(), light);
 
     scene.Add(&floor);
     scene.Add(&shortbox);

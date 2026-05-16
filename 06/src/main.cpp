@@ -4,6 +4,31 @@
 #include "Vector.hpp"
 #include "global.hpp"
 #include <chrono>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+
+fs::path find_project_path(const fs::path& relative_path)
+{
+    auto current = fs::current_path();
+    for (int i = 0; i < 8; ++i)
+    {
+        auto candidate = current / relative_path;
+        if (fs::exists(candidate))
+        {
+            return candidate;
+        }
+
+        auto parent = current.parent_path();
+        if (parent == current)
+        {
+            break;
+        }
+        current = parent;
+    }
+
+    return relative_path;
+}
 
 // In the main function of the program, we create the scene (create objects and
 // lights) as well as set the options for the render (image width and height,
@@ -13,8 +38,7 @@ int main(int argc, char** argv)
 {
     Scene scene(1280, 960);
 
-    // MeshTriangle bunny("../models/bunny/bunny.obj");
-    MeshTriangle bunny("C:/Users/tianrong/Projects/GAMES101/06/src/models/bunny/bunny.obj");
+    MeshTriangle bunny(find_project_path("06/src/models/bunny/bunny.obj").string());
 
     scene.Add(&bunny);
     scene.Add(std::make_unique<Light>(Vector3f(-20, 70, 20), 1));
